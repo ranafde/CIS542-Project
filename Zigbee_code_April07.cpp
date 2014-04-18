@@ -3,6 +3,9 @@
 #include "NodeId.h"
 #include <deque> 
 
+
+//this file has a lot of unstructured business. How ius the reader to understand it? What are you implementing?
+// Try to put everything into the context of a meaningful object with meaningful functionality.
 #define QueueSize 4
  // RF tranceiver to link with handxheld.
  MRF24J40 mrf(p11, p12, p13, p14, p21);

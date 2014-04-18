@@ -13,7 +13,8 @@ Serial pc(USBTX, USBRX);
 std::deque<size_t> Dijkstra(size_t sourceNode,size_t destNode);
 
 int main() {
-    // Initially all paths are infinity
+	// the following comment doesn't seem to match the code below it
+	// Initially all paths are infinity
     pc.baud(115200);     
     
     setNodes();
@@ -37,6 +38,8 @@ std::deque<size_t> Dijkstra(size_t sourceNode, size_t destNode)
     // For Initializing RouteMap
     for(size_t i=1;i<NODES;i++)
     {        
+		// this does all kinds of unnecessary copying. How about making routes an array and writing
+		// routes[i] = std::make_pair(i-1,std::dequeue<size_t>())
         std::deque<size_t> defaultQueue;
         std::pair <size_t,std::deque<size_t> > routePair;
         routePair = std::make_pair (i-1,defaultQueue);
@@ -52,7 +55,8 @@ std::deque<size_t> Dijkstra(size_t sourceNode, size_t destNode)
     size_t currentNode,currNeighbor,newCost,oldCost,temp,queueSize;    
     currentNode = sourceNode;
     
-    
+    // don't declare an object until you are ready to initialize it.
+	// in this case, declare it inside the for loop
     map<size_t,Plan>::iterator it;
     while(currentStatus.indexMap[destNode-1] != -1)
     {    
@@ -74,7 +78,7 @@ std::deque<size_t> Dijkstra(size_t sourceNode, size_t destNode)
                     currentStatus.decreaseCost(currNeighbor,newCost);
                     
                     //currentStatus[i-1] = p[currentNode-1][i-1].cost + currentStatus[currentNode-1];
-                    
+                    // shouldn't need to clear; just assign it the new route
                     routes[currNeighbor-1].clear();
                     // Copying Elements of routes[CurrentNode-1] to routes[currNeighbor-1] - it will overwrite
                     queueSize = routes[currentNode-1].size();
@@ -102,6 +106,8 @@ std::deque<size_t> Dijkstra(size_t sourceNode, size_t destNode)
     
     return routes[destNode-1];  
 }
+
+
 void setNodes()
 {
     Plan p;
@@ -194,14 +200,17 @@ void setNodes()
 }
 
 
+// Your heap implementation should be either in heap.h (if you need to inline) or in heap.cpp
 
-
+// this is very bad. You have failed to establish the invariants needed to call public methods on the class.
+// Can you really afford to leave heap_size uninitialized? 
 Heap::Heap()
 {
 }
 
 Heap::Heap(size_t sourceNodeID)
 {
+	// why bother initializing the first node?
     // Node at first position is reserved for implementation of binary heap
     node[0].nodeID = 0;
     node[0].cost = 0;
@@ -211,11 +220,16 @@ Heap::Heap(size_t sourceNodeID)
     {
         node[i].nodeID = i;
         indexMap[i-1] = i;
+		// why test this for every node? simply move the assignment for sourceNodeID out of the loop.
         if(sourceNodeID == i)
             node[i].cost = 0;
         else
             node[i].cost = INF;
     }
+	// The following isn't necessary. You know that sourceNodeID will end up at index 1 with cost 0, and 
+	// it doesn't matter where all the other nodes are. So you could just turn it into a heap directly.
+	// Note also that putting all of these irrelevant elements into the heap at the beginning will give you unnecessary cost
+	// every time you do a heap mutation. 
     // Heapify all elements
     for(size_t j=NODES/2;j>=1;j--)
         heapify(j);
