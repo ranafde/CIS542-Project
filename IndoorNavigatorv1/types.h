@@ -7,21 +7,23 @@
 
 using namespace std;
 
-
+/* Structure to store the cost of the node and direction to be taken when this node is visited. Used in Dijkstra.cpp in function setNodes() to build the infrastructure. */
 typedef struct Plan{
-    size_t cost;   // INT_MAX denotes infinity
+    unsigned cost;   // INT_MAX denotes infinity
     char direction; // i denotes infinity, 'N','W','S','E' are respective directions
 }Plan;
 
 typedef vector< map <size_t,Plan> > nodeMap;
 
- 
+/* */
 typedef struct PathNode{
-    size_t NodeID;
-    size_t cost;   // INT_MAX denotes infinity
+    unsigned NodeID;
+    unsigned cost;   // INT_MAX denotes infinity
     char direction; // i denotes infinity, 'N','W','S','E' are respective directions
 }PathNode;
 
+/* Function prototype to initialize the infrastructure. (Build the map of the corridor)*/
 void setNodes();
 
-typedef map<size_t,size_t > routeMap;
+/* */
+typedef map<unsigned, unsigned> routeMap;
