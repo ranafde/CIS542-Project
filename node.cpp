@@ -4,6 +4,10 @@
 
 #define MYID 3
 
+// why is this file called node.c?? Where is the node?
+
+// Put servo functionality into a class providing meaningful functionality
+
 /*Servo servoRIGHT(p22);   //Right side of servo connected to p22 pwmOut pin
 Servo servoLEFT(p23);   //Left side of servo connected to p23  pwmOut pin*/
 MRF24J40 mrf(p11,p12,p13,p14,p21);

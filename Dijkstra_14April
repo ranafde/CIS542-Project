@@ -13,15 +13,15 @@ Serial pc(USBTX, USBRX);
 std::deque<size_t> Dijkstra(size_t sourceNode,size_t destNode);
 
 int main() {
-	// the following comment doesn't seem to match the code below it
-	// Initially all paths are infinity
+    // Initially all paths are infinity
     pc.baud(115200);     
-    
+   
     setNodes();
+     
     std::deque<size_t> shortestPath = Dijkstra(1,5);
-    size_t i;
-    
-    for(i =0; i < shortestPath.size(); i++)
+    int i,size;
+    size = shortestPath.size();
+    for(i =size-1; i >=0; --i)
     {
             pc.printf("\n\rNode %d ", shortestPath.at(i));
     }
@@ -36,30 +36,30 @@ std::deque<size_t> Dijkstra(size_t sourceNode, size_t destNode)
         
     routeMap routes; 
     // For Initializing RouteMap
+   
     for(size_t i=1;i<NODES;i++)
     {        
-		// this does all kinds of unnecessary copying. How about making routes an array and writing
-		// routes[i] = std::make_pair(i-1,std::dequeue<size_t>())
         std::deque<size_t> defaultQueue;
-        std::pair <size_t,std::deque<size_t> > routePair;
-        routePair = std::make_pair (i-1,defaultQueue);
+        std::pair <size_t,size_t> routePair;
+        routePair = std::make_pair (i,i);   //1,2,3,.... to 1,2,3.....
         routes.insert(routePair);
     }
+  
     
     // Assigning every node's tentative distance to infinity and 0 for source node
     Heap currentStatus(sourceNode);
     
     // For Source Node shortest path is node itself
-    routes[sourceNode-1].push_back(sourceNode);
+    //routes[sourceNode-1].push_back(sourceNode);
     
-    size_t currentNode,currNeighbor,newCost,oldCost,temp,queueSize;    
+    size_t currentNode,currNeighbor,newCost,oldCost/*,temp,queueSize*/;    
     currentNode = sourceNode;
     
-    // don't declare an object until you are ready to initialize it.
-	// in this case, declare it inside the for loop
+    
     map<size_t,Plan>::iterator it;
     while(currentStatus.indexMap[destNode-1] != -1)
-    {    
+    {
+        
         for(it = nodeGraph[currentNode-1].begin(); it!= nodeGraph[currentNode-1].end();it++)
         {  
             //invariant forall size_t n: 1 <= n <= i && currentStatus[n-1] != -2: 
@@ -75,26 +75,16 @@ std::deque<size_t> Dijkstra(size_t sourceNode, size_t destNode)
                 
                if( newCost < oldCost)
                 {
+                    
                     currentStatus.decreaseCost(currNeighbor,newCost);
                     
                     //currentStatus[i-1] = p[currentNode-1][i-1].cost + currentStatus[currentNode-1];
-                    // shouldn't need to clear; just assign it the new route
-                    routes[currNeighbor-1].clear();
+                    
+                    
                     // Copying Elements of routes[CurrentNode-1] to routes[currNeighbor-1] - it will overwrite
-                    queueSize = routes[currentNode-1].size();
-                    for(size_t j=1; j <= queueSize;j++)
-                    {
-                        //invariant routes[currentNode-1].size() == queueSize
-                        //invariant routes[i-1].size() == j-1
-                        //invariant forall size_t a: 0 <= a < j <= queueSize: routes[currentNodes-1].at(queueSize - a - 1) == routes[i-1].at(j-a-1)
-                        
-                        temp = routes[currentNode-1].at(0);
-                        routes[currentNode-1].pop_front();
-                        routes[currNeighbor-1].push_back(temp);
-                        routes[currentNode-1].push_back(temp);             
-                    }
-                    routes[currNeighbor-1].push_back(currNeighbor);        
-                }
+                                      routes[currNeighbor]= currentNode;
+                    
+                }//end if
             }
         } // for ends here
         
@@ -102,12 +92,24 @@ std::deque<size_t> Dijkstra(size_t sourceNode, size_t destNode)
         currentStatus.indexMap[currentNode-1] = -1;
         currentNode = currentStatus.node[1].nodeID;
         
-    }
+    }//while ends here
     
-    return routes[destNode-1];  
+    size_t myNode;
+    myNode = destNode;
+    deque<size_t> myPath;
+  //  for (map<size_t,size_t>::iterator it=routes.begin(); it!=routes.end(); it++)
+  //      pc.printf("\n\rnode->  %d       predecessor->  %d\r\n", it->first, it->second );
+     
+    while (myNode!=sourceNode) {
+        
+        myPath.push_back(myNode);
+        myNode = routes[myNode];
+        
+    }
+    myPath.push_back(myNode);
+    
+    return myPath;
 }
-
-
 void setNodes()
 {
     Plan p;
@@ -200,17 +202,14 @@ void setNodes()
 }
 
 
-// Your heap implementation should be either in heap.h (if you need to inline) or in heap.cpp
 
-// this is very bad. You have failed to establish the invariants needed to call public methods on the class.
-// Can you really afford to leave heap_size uninitialized? 
+
 Heap::Heap()
 {
 }
 
 Heap::Heap(size_t sourceNodeID)
 {
-	// why bother initializing the first node?
     // Node at first position is reserved for implementation of binary heap
     node[0].nodeID = 0;
     node[0].cost = 0;
@@ -220,18 +219,13 @@ Heap::Heap(size_t sourceNodeID)
     {
         node[i].nodeID = i;
         indexMap[i-1] = i;
-		// why test this for every node? simply move the assignment for sourceNodeID out of the loop.
         if(sourceNodeID == i)
             node[i].cost = 0;
         else
             node[i].cost = INF;
     }
-	// The following isn't necessary. You know that sourceNodeID will end up at index 1 with cost 0, and 
-	// it doesn't matter where all the other nodes are. So you could just turn it into a heap directly.
-	// Note also that putting all of these irrelevant elements into the heap at the beginning will give you unnecessary cost
-	// every time you do a heap mutation. 
     // Heapify all elements
-    for(size_t j=NODES/2;j>=1;j--)
+    for(size_t j=heapSize/2;j>=1;j--)
         heapify(j);
 }
 
@@ -241,8 +235,7 @@ void Heap::extractMin()
     swapNodes(1,heapSize);
     heapSize--;
     
-    for(int j=heapSize/2;j>=1;j--)
-        heapify(j);
+    heapify(1);
 }
 
 bool Heap::decreaseCost(size_t nodeID,size_t newCost)
@@ -252,46 +245,47 @@ bool Heap::decreaseCost(size_t nodeID,size_t newCost)
         node[indexMap[nodeID-1]].cost = newCost;
         return true;
     }
+     
+    size_t thisNode = indexMap[nodeID-1];
+    size_t parentNode = thisNode/2;
+    
+    
+    //percolate the node with the decreased value up
+    while(node[thisNode].cost < node[parentNode].cost && thisNode > 1)
+    {
+       swap(thisNode, parentNode);
+       thisNode = parentNode;
+       parentNode = thisNode/2;
+        
+    }
+    
+    
     return false;
 }
 
+
+//Heapify percolates the node down
 void Heap::heapify(size_t parent)
 {
-    if(parent == 0)
-        return;
+   
     
-    size_t smallest;
+    size_t smallest,left,right;
     
-    size_t left = 2*parent;
-    size_t right;
-    
-    if( parent*2+1 <= heapSize)
-        right = 2*parent+1;
+    left = 2*parent;
+    right = 2*parent + 1;
+    if(left <= heapSize && node[left].cost < node[parent].cost)
+        smallest = left;
     else
-        right = 0;
-    
-    smallest = parent;
-    
-    if(right != 0 && node[right].cost < node[parent].cost)
+        smallest = parent;
+   
+    if(right <= heapSize && node[right].cost < node[smallest].cost)
         smallest = right;
     if(smallest != parent)
     {
         swapNodes(parent,smallest);
-        heapify(parent/2);
+        heapify(smallest);
     }
     
-    smallest = parent;
-    
-    if(node[left].cost < node[parent].cost)
-        smallest = left;
-    
-    if(smallest != parent)
-    {
-        swapNodes(parent,smallest);
-        heapify(parent/2);
-    }
-    if(parent == smallest)
-        return;
   
 }
 
