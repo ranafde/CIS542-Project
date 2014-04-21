@@ -1,11 +1,9 @@
 #include <deque> 
 #include "mbed.h"
 #include "MRF24J40.h"
-
+#include "boebot.h"
 #include "PriorityQueue.h"
 #include "Dijkstra.h"
-
-
 
 
 #define Node1 1
@@ -13,54 +11,9 @@
 #define Node3 3
 #define Node4 4
 #define QueueSize 4
-
-PwmOut servoRIGHT(p23);
-PwmOut servoLEFT(p24); 
-
-
-class Steer{
-    
-    public:
-        //Move the bot forward with a speed of 0.22 m/s
-        void forward();
-        
-        //Stop the bot         
-        void stop();
-        
-        //Make the bot turn right
-        void right();
-        
-        //Make the bot turn right
-        void left();
-}; 
-
-void Steer :: forward() { 
-     servoLEFT.write(0.08);
-     servoRIGHT.write(0.07);
-     
-    }
-
-void Steer :: stop() {
-     servoLEFT.write(0.075);
-     servoRIGHT.write(0.075);
-    
-}
-
-void Steer :: right() {
-     servoLEFT.write(0.08);
-     servoRIGHT.write(0.075);
-     wait(1.5);
-     forward();
-}
-
-void Steer ::  left() {
-     servoLEFT.write(0.075);
-     servoRIGHT.write(0.08);
-     wait(1.5);
-     forward();
-}
  
 
+ 
  
  
  // RF tranceiver to link with handxheld.
@@ -97,18 +50,16 @@ void Steer ::  left() {
      std::deque<uint16_t> avgQueue;
      
      pc.baud(115200);
-    
+     Steer s;
      Dijkstra d;
      d.setNodes();  
-     
-     Steer Boebot;
      
      deque<size_t> shortestPath = d.findShortest(1,5);
      currentNode = shortestPath.front();
      shortestPath.pop_front();
      
      timer.start();
-     Boebot.forward();
+     s.forward();
      while(1)
     {
          // Check if any data was received.
@@ -262,4 +213,3 @@ void Steer ::  left() {
     } */   
  }
  
-
