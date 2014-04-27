@@ -4,8 +4,11 @@
 // If the returned queue is empty, it means there is no direct path between source and destination
 std::deque<size_t> Dijkstra::findShortest(size_t sourceNode, size_t destNode)
 {
+	// DON"T QUANTIFY VARIABLES THAT ARE ALREADY IN SCOPE!
     //requires forall size_t sourceNode, destNode:: 1 <= sourceNode <= Nodes && 1 <= destNode <= Nodes
+	// by shortestpath, I assume you mean \result 
     //ensures forall size_t sourceNode, destNode:: 1 <= shortestPath.size() <= Nodes
+	// you also need that the result is a path
     //ensures forall sizet sourceNode, destNode:: shortestPath.at(0).NodeId == sourceNode && shortestPath.at(shortestPath.size()-1).NodeId == destNode
         
     routeMap routes; 

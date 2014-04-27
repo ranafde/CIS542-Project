@@ -1,6 +1,7 @@
 #include "HMC6352.h"
 #include "boebot.h"
 
+// documentation? what is this?
 class compass{    
     public: 
         

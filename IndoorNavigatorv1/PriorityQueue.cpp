@@ -1,5 +1,9 @@
 #include "PriorityQueue.h"
 
+// what are the invariants of your data structure? remember, all of your methods
+// should be applicable to a properly initialized PriorityQueue
+
+// the default constructor should leave the heapsize as garbage??
 PriorityQueue::PriorityQueue()
 {
 }
@@ -10,10 +14,10 @@ PriorityQueue::PriorityQueue(size_t sourceNodeID)
     node[0].nodeID = 0;
     node[0].cost = 0;
     heapSize = NODES;
-    // All nodes except sourceNode would have cost of infinity with source node having value of 0
-    for(size_t i=1;i<=NODES;i++)
+
+	for(size_t i=1;i<=NODES;i++)
     {
-        node[i].nodeID = i;
+		node[i].nodeID = i;
         indexMap[i-1] = i;
         if(sourceNodeID == i)
             node[i].cost = 0;
@@ -77,6 +81,7 @@ void PriorityQueue::heapify(size_t parent)
     if(smallest != parent)
     {
         swapNodes(parent,smallest);
+		// make this iterative
         heapify(smallest);
     }
     
